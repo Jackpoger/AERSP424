@@ -1,0 +1,129 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <memory>  // For shared_ptr
+
+class Plane {
+private:
+    double pos;
+    double vel;
+    double distance;
+    bool at_SCE;
+    std::string origin;
+    std::string destination;
+    std::map<std::pair<std::string, std::string>, int> flight_distances;
+
+public:
+    // Constructor that takes in two strings "from" and "to"
+    Plane(const std::string& from, const std::string& to)
+        : pos(0), vel(0), at_SCE(false), origin(from), destination(to) {
+        flight_distances[{"SCE", "PHL"}] = 160;
+        flight_distances[{"SCE", "ORD"}] = 640;
+        flight_distances[{"SCE", "EWR"}] = 220;
+
+        std::pair<std::string, std::string> flight_key = {origin, destination};
+        distance = flight_distances[flight_key];
+        at_SCE = (origin == "SCE");
+        std::cout << "Plane Created at " << this << std::endl;
+    }
+
+    ~Plane() {
+        std::cout << "Plane Destroyed" << std::endl;
+    }
+
+    void operate(double dt) {
+        if (dt < 0) {
+            dt = 0;
+        }
+        if (pos < distance) {
+            pos += vel * dt / 3600.0;
+            if (pos > distance) {
+                pos = distance;
+            }
+            at_SCE = false;
+        } else {
+            if (destination == "SCE") {
+                at_SCE = true;
+            } else {
+                std::swap(origin, destination);
+                pos = 0.0;
+            }
+        }
+    }
+
+    double getPos() const {
+        return pos;
+    }
+
+    double getDistance() const {
+        return distance;
+    }
+
+    bool isAtSCE() const {
+        return at_SCE;
+    }
+
+    void setVel(double newVel) {
+        vel = newVel;
+    }
+};
+
+class Pilot {
+private:
+    std::string name;
+
+public:
+    std::shared_ptr<Plane> myPlane;
+
+    Pilot(const std::string& pilotName, std::shared_ptr<Plane> plane)
+        : name(pilotName), myPlane(plane) {
+        std::cout << "Pilot " << name << " is at the gate, ready to board the plane." << std::endl;
+        std::cout << "Memory address of this pilot: " << this << std::endl;
+    }
+
+    ~Pilot() {
+        std::cout << "Pilot " << name << " is out of the plane." << std::endl;
+    }
+
+    std::string getName() const {
+        return name;
+    }
+
+    void printControl() const {
+        std::cout << "Pilot " << name << " is in control of a plane at: " << myPlane.get() << std::endl;
+    }
+};
+
+int main() {
+    auto plane = std::make_shared<Plane>("SCE", "PHL");
+    plane->setVel(450.0);  // Set speed to 450 mph
+
+    Pilot pilot1("Alpha", plane);
+    Pilot pilot2("Bravo", plane);
+
+    double timestep = 30.0;
+    int max_iterations = 1000;
+    Pilot* currentPilot = &pilot1;
+
+    for (int i = 1; i <= max_iterations; i++) {
+        double time = i * timestep;
+
+        currentPilot->myPlane->operate(timestep);
+        currentPilot->printControl();
+        std::cout << "Time: " << time << " seconds, Position: " << currentPilot->myPlane->getPos() << " miles." << std::endl;
+
+        if (currentPilot->myPlane->isAtSCE()) {
+            std::cout << "The plane at " << currentPilot->myPlane.get() << " is at SCE." << std::endl;
+            currentPilot = (currentPilot == &pilot1) ? &pilot2 : &pilot1;
+            std::cout << "Control switched! Now ";
+            currentPilot->printControl();
+        }
+
+        if (currentPilot->myPlane->getPos() >= currentPilot->myPlane->getDistance()) {
+            std::cout << "Flight completed." << std::endl;
+            break;
+        }
+    }
+
+    return 0;
+}
