@@ -2,25 +2,20 @@
 #include <map>
 #include <string>
 
-// Function to print flight distances
-void print_flight_distances(const std::map<std::pair<std::string, std::string>, int>& flights) {
-    for (const auto& flight : flights) {
-        std::cout << "Distance between " << flight.first.first << " and " 
-                  << flight.first.second << " is " << flight.second << " miles." << std::endl;
-    }
-}
-
 int main() {
-    // Create a map to store flight distances between two cities
+    // Define a map to store distances between city pairs
     std::map<std::pair<std::string, std::string>, int> flight_distances;
 
-    // Adding the given flight distances
-    flight_distances[{"SCE", "PHL"}] = 160; // SCE to Philadelphia (PHL)
-    flight_distances[{"SCE", "ORD"}] = 640; // SCE to Chicago (ORD)
-    flight_distances[{"SCE", "EWR"}] = 220; // SCE to Newark (EWR)
+    // Add the distances between SCE and other airports
+    flight_distances[{"SCE", "PHL"}] = 160;  // SCE to Philadelphia (PHL)
+    flight_distances[{"SCE", "ORD"}] = 640;  // SCE to Chicago (ORD)
+    flight_distances[{"SCE", "EWR"}] = 220;  // SCE to Newark (EWR)
 
-    // Print the flight distances
-    print_flight_distances(flight_distances);
+    // Print out the stored flight distances
+    for (const auto& entry : flight_distances) {
+        std::cout << "Distance between " << entry.first.first << " and " 
+                  << entry.first.second << " is " << entry.second << " miles." << std::endl;
+    }
 
     return 0;
 }
