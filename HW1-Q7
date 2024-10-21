@@ -1,0 +1,168 @@
+#include <iostream>
+#include <string>
+#include <map>
+
+class Plane {
+private:
+    double pos;        // Position of the plane
+    double vel;        // Velocity of the plane
+    double distance;   // Distance between the origin and destination
+    bool at_SCE;       // Boolean flag for being at SCE airport
+    std::string origin;      // Origin airport
+    std::string destination; // Destination airport
+
+    // Container for storing flight distances
+    std::map<std::pair<std::string, std::string>, int> flight_distances;
+
+public:
+    // Constructor that takes in two strings "from" and "to"
+    Plane(const std::string& from, const std::string& to)
+        : pos(0), vel(0), at_SCE(false), origin(from), destination(to) {
+
+        // Initialize the flight distances container
+        flight_distances[{"SCE", "PHL"}] = 160;
+        flight_distances[{"SCE", "ORD"}] = 640;
+        flight_distances[{"SCE", "EWR"}] = 220;
+
+        // Set the distance between the origin and destination
+        std::pair<std::string, std::string> flight_key = {origin, destination};
+        if (flight_distances.find(flight_key) != flight_distances.end()) {
+            distance = flight_distances[flight_key];
+        } else {
+            distance = 0;
+            std::cout << "Flight route not found." << std::endl;
+        }
+
+        // Check if the plane starts at SCE
+        at_SCE = (origin == "SCE");
+
+        // Print the memory address where this plane object is stored
+        std::cout << "Plane Created at " << this << std::endl;
+    }
+
+    // Destructor
+    ~Plane() {
+        std::cout << "Plane Destroyed" << std::endl;
+    }
+
+    // Function "operate" that takes in a double variable "dt"
+    void operate(double dt) {
+        if (dt < 0) {
+            dt = 0;  // Ensuring time step is non-negative
+        }
+
+        if (pos < distance) {
+            // If position is less than distance, update position
+            pos += vel * dt / 3600.0;  // Convert velocity from mph to miles per second
+            if (pos > distance) {
+                pos = distance;  // Cap the position to the total distance
+            }
+            at_SCE = false;
+        } else {
+            // Check if the destination is "SCE"
+            if (destination == "SCE") {
+                at_SCE = true;
+            } else {
+                std::swap(origin, destination);
+                pos = 0.0;  // Reset position for return journey
+            }
+        }
+    }
+
+    // Getter functions
+    double getPos() const {
+        return pos;
+    }
+
+    double getDistance() const {
+        return distance;
+    }
+
+    bool isAtSCE() const {
+        return at_SCE;
+    }
+
+    void setVel(double newVel) {
+        vel = newVel;
+    }
+};
+
+class Pilot {
+private:
+    std::string name;  // Pilot's name
+
+public:
+    Plane* myPlane;  // Pointer to a Plane object
+
+    // Constructor
+    Pilot(const std::string& pilotName, Plane* plane)
+        : name(pilotName), myPlane(plane) {
+        std::cout << "Pilot " << name << " is at the gate, ready to board the plane." << std::endl;
+        std::cout << "Memory address of this pilot: " << this << std::endl;
+    }
+
+    // Destructor
+    ~Pilot() {
+        std::cout << "Pilot " << name << " is out of the plane." << std::endl;
+    }
+
+    // Getter for name
+    std::string getName() const {
+        return name;
+    }
+
+    // Print which plane the pilot is controlling
+    void printControl() const {
+        std::cout << "Pilot " << name << " is in control of a plane at: " << myPlane << std::endl;
+    }
+};
+
+int main() {
+    // Create the Plane object from "SCE" to "PHL"
+    Plane* plane = new Plane("SCE", "PHL");
+    plane->setVel(450.0);  // Set speed to 450 mph
+
+    // Create two Pilot objects
+    Pilot pilot1("Alpha", plane);
+    Pilot pilot2("Bravo", plane);
+
+    // Variables for simulation
+    double timestep = 30.0;  // Timestep of 30 seconds
+    int max_iterations = 1000;  // Maximum number of iterations
+    Pilot* currentPilot = &pilot1;  // Pilot 1 starts as the controller
+
+    // Simulation loop
+    for (int i = 1; i <= max_iterations; i++) {
+        double time = i * timestep;
+
+        // Operate the plane
+        currentPilot->myPlane->operate(timestep);
+
+        // Print the pilot controlling the plane
+        currentPilot->printControl();
+        std::cout << "Time: " << time << " seconds, Position: " << currentPilot->myPlane->getPos() << " miles." << std::endl;
+
+        // Check if the plane has landed at SCE
+        if (currentPilot->myPlane->isAtSCE()) {
+            std::cout << "The plane at " << currentPilot->myPlane << " is at SCE." << std::endl;
+
+            // Switch control to the other pilot
+            currentPilot = (currentPilot == &pilot1) ? &pilot2 : &pilot1;
+
+            // Print the control switch
+            std::cout << "Control switched! Now ";
+            currentPilot->printControl();
+        }
+
+        // Break the loop when the flight is completed
+        if (currentPilot->myPlane->getPos() >= currentPilot->myPlane->getDistance()) {
+            std::cout << "Flight completed." << std::endl;
+            break;
+        }
+    }
+
+    // Clean up
+    delete plane;
+
+    return 0;
+}
