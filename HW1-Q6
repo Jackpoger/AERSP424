@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+#include <map>
+
+class Plane {
+private:
+    double pos;        // Position of the plane
+    double vel;        // Velocity of the plane
+    double distance;   // Distance between the origin and destination
+    bool at_SCE;       // Boolean flag for being at SCE airport
+    std::string origin;      // Origin airport
+    std::string destination; // Destination airport
+
+    // Container for storing flight distances
+    std::map<std::pair<std::string, std::string>, int> flight_distances;
+
+public:
+    // Constructor that takes in two strings "from" and "to"
+    Plane(const std::string& from, const std::string& to)
+        : pos(0), vel(0), at_SCE(false), origin(from), destination(to) {
+
+        // Initialize the flight distances container
+        flight_distances[{"SCE", "PHL"}] = 160;
+        flight_distances[{"SCE", "ORD"}] = 640;
+        flight_distances[{"SCE", "EWR"}] = 220;
+
+        // Set the distance between the origin and destination
+        std::pair<std::string, std::string> flight_key = {origin, destination};
+        if (flight_distances.find(flight_key) != flight_distances.end()) {
+            distance = flight_distances[flight_key];
+        } else {
+            distance = 0;
+            std::cout << "Flight route not found." << std::endl;
+        }
+
+        // Check if the plane starts at SCE
+        at_SCE = (origin == "SCE");
+
+        // Print the memory address where this plane object is stored
+        std::cout << "Plane Created at " << this << std::endl;
+    }
+
+    // Destructor
+    ~Plane() {
+        std::cout << "Plane Destroyed" << std::endl;
+    }
+
+    // Other Plane class methods...
+};
+
+class Pilot {
+private:
+    std::string name;  // Pilot's name
+
+public:
+    Plane* myPlane;  // Pointer to a Plane object
+
+    // Constructor
+    Pilot(const std::string& pilotName, Plane* plane)
+        : name(pilotName), myPlane(plane) {
+        // Print the pilot's name and memory address of the object
+        std::cout << "Pilot " << name << " is at the gate, ready to board the plane." << std::endl;
+        std::cout << "Memory address of this pilot: " << this << std::endl;
+    }
+
+    // Destructor
+    ~Pilot() {
+        // Print a message when the pilot is out of the plane
+        std::cout << "Pilot " << name << " is out of the plane." << std::endl;
+    }
+
+    // Getter function for "name"
+    std::string getName() const {
+        return name;
+    }
+};
+
+int main() {
+    // Create a Plane object from "SCE" to "PHL"
+    Plane* plane = new Plane("SCE", "PHL");
+
+    // Create a Pilot object and associate it with the plane
+    Pilot myPilot("John Doe", plane);
+
+    // Access the pilot's name
+    std::cout << "Pilot's name: " << myPilot.getName() << std::endl;
+
+    // Clean up
+    delete plane;  // Destroy the plane object
+    // The Pilot object will be destroyed automatically when it goes out of scope
+    return 0;
+}
