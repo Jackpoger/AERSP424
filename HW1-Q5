@@ -24,7 +24,7 @@ public:
         flight_distances[{"SCE", "ORD"}] = 640;
         flight_distances[{"SCE", "EWR"}] = 220;
 
-        // Set the distance between the origin and destination
+        // Set the distance
         std::pair<std::string, std::string> flight_key = {origin, destination};
         if (flight_distances.find(flight_key) != flight_distances.end()) {
             distance = flight_distances[flight_key];
