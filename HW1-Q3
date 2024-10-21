@@ -1,0 +1,97 @@
+#include <iostream>
+#include <string>
+#include <map>
+
+class Plane {
+private:
+    // Private members
+    double pos;
+    double vel;
+    double distance;
+    bool at_SCE;
+    std::string origin;
+    std::string destination;
+    
+    // Container for storing flight distances (map from question 2)
+    std::map<std::pair<std::string, std::string>, int> flight_distances;
+
+public:
+    // Constructor that takes in origin and destination
+    Plane(const std::string& from, const std::string& to) : origin(from), destination(to), pos(0), vel(0), distance(0), at_SCE(false) {
+        // Initialize the flight_distances container
+        flight_distances[{"SCE", "PHL"}] = 160;
+        flight_distances[{"SCE", "ORD"}] = 640;
+        flight_distances[{"SCE", "EWR"}] = 220;
+
+        // Set the distance between the origin and destination
+        std::pair<std::string, std::string> flight_key = {origin, destination};
+        if (flight_distances.find(flight_key) != flight_distances.end()) {
+            distance = flight_distances[flight_key];
+        } else {
+            std::cout << "Flight route not found." << std::endl;
+        }
+
+        // Check if the plane starts at SCE
+        at_SCE = (origin == "SCE");
+    }
+
+    // Destructor
+    ~Plane() {
+        std::cout << "Plane object destroyed." << std::endl;
+    }
+
+    // Function 'operate' with a time step 'dt'
+    void operate(double dt) {
+        // No real functionality yet; just a placeholder
+        std::cout << "Operating the plane for a time step of " << dt << " seconds." << std::endl;
+    }
+
+    // Getter for 'pos'
+    double getPos() const {
+        return pos;
+    }
+
+    // Getter for 'origin'
+    std::string getOrigin() const {
+        return origin;
+    }
+
+    // Getter for 'destination'
+    std::string getDestination() const {
+        return destination;
+    }
+
+    // Getter for 'at_SCE'
+    bool isAtSCE() const {
+        return at_SCE;
+    }
+
+    // Getter for 'vel'
+    double getVel() const {
+        return vel;
+    }
+
+    // Setter for 'vel'
+    void setVel(double newVel) {
+        vel = newVel;
+    }
+};
+
+int main() {
+    // Creating a Plane object from "SCE" to "PHL"
+    Plane myPlane("SCE", "PHL");
+
+    // Testing the getters
+    std::cout << "Origin: " << myPlane.getOrigin() << std::endl;
+    std::cout << "Destination: " << myPlane.getDestination() << std::endl;
+    std::cout << "Is at SCE: " << (myPlane.isAtSCE() ? "Yes" : "No") << std::endl;
+
+    // Test setting and getting velocity
+    myPlane.setVel(300.0);
+    std::cout << "Current velocity: " << myPlane.getVel() << " mph" << std::endl;
+
+    // Test the operate function
+    myPlane.operate(5.0);
+
+    return 0;
+}
