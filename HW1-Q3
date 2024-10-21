@@ -5,20 +5,22 @@
 class Plane {
 private:
     // Private members
-    double pos;
-    double vel;
-    double distance;
-    bool at_SCE;
-    std::string origin;
-    std::string destination;
-    
+    double pos;        // Position of the plane
+    double vel;        // Velocity of the plane
+    double distance;   // Distance between the origin and destination
+    bool at_SCE;       // Boolean flag for being at SCE airport
+    std::string origin;      // Origin airport
+    std::string destination; // Destination airport
+
     // Container for storing flight distances
     std::map<std::pair<std::string, std::string>, int> flight_distances;
 
 public:
-    // Constructor that takes in origin and destination
-    Plane(const std::string& from, const std::string& to) : origin(from), destination(to), pos(0), vel(0), distance(0), at_SCE(false) {
-        // Initialize the flight_distances container
+    // Constructor that takes in two strings "from" and "to"
+    Plane(const std::string& from, const std::string& to) 
+        : pos(0), vel(0), at_SCE(false), origin(from), destination(to) {
+        
+        // Initialize the flight distances container
         flight_distances[{"SCE", "PHL"}] = 160;
         flight_distances[{"SCE", "ORD"}] = 640;
         flight_distances[{"SCE", "EWR"}] = 220;
@@ -28,6 +30,7 @@ public:
         if (flight_distances.find(flight_key) != flight_distances.end()) {
             distance = flight_distances[flight_key];
         } else {
+            distance = 0;
             std::cout << "Flight route not found." << std::endl;
         }
 
@@ -40,38 +43,37 @@ public:
         std::cout << "Plane object destroyed." << std::endl;
     }
 
-    // Function 'operate' with a time step 'dt'
+    // Function "operate" that takes in a double variable "dt"
     void operate(double dt) {
-        // No real functionality yet; just a placeholder
+        // Placeholder for future functionality
         std::cout << "Operating the plane for a time step of " << dt << " seconds." << std::endl;
     }
 
-    // Getter for 'pos'
+    // Get function for "pos"
     double getPos() const {
         return pos;
     }
 
-    // Getter for 'origin'
+    // Get function for "origin"
     std::string getOrigin() const {
         return origin;
     }
 
-    // Getter for 'destination'
+    // Get function for "destination"
     std::string getDestination() const {
         return destination;
     }
 
-    // Getter for 'at_SCE'
+    // Get function for "at_SCE"
     bool isAtSCE() const {
         return at_SCE;
     }
 
-    // Getter for 'vel'
+    // Get and set functions for "vel"
     double getVel() const {
         return vel;
     }
 
-    // Setter for 'vel'
     void setVel(double newVel) {
         vel = newVel;
     }
