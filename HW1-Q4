@@ -37,7 +37,7 @@ public:
         // Check if the plane starts at SCE
         at_SCE = (origin == "SCE");
 
-        // Print the memory address where this plane object is stored
+        // Print the memory address 
         std::cout << "Plane Created at " << this << std::endl;
     }
 
@@ -46,7 +46,7 @@ public:
         std::cout << "Plane Destroyed" << std::endl;
     }
 
-    // Function "operate" that takes in a double variable "dt"
+    // Function "operate" 
     void operate(double dt) {
         if (dt < 0) {
             dt = 0;  // Ensuring time step is non-negative
