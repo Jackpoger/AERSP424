@@ -1,0 +1,99 @@
+#include <iostream>
+#include <string>
+#include <map>
+
+class Plane {
+private:
+    // Private members
+    double pos;        // Position of the plane
+    double vel;        // Velocity of the plane
+    double distance;   // Distance between the origin and destination
+    bool at_SCE;       // Boolean flag for being at SCE airport
+    std::string origin;      // Origin airport
+    std::string destination; // Destination airport
+
+    // Container for storing flight distances
+    std::map<std::pair<std::string, std::string>, int> flight_distances;
+
+public:
+    // Constructor that takes in two strings "from" and "to"
+    Plane(const std::string& from, const std::string& to) 
+        : pos(0), vel(0), at_SCE(false), origin(from), destination(to) {
+        
+        // Initialize the flight distances container
+        flight_distances[{"SCE", "PHL"}] = 160;
+        flight_distances[{"SCE", "ORD"}] = 640;
+        flight_distances[{"SCE", "EWR"}] = 220;
+
+        // Set the distance between the origin and destination
+        std::pair<std::string, std::string> flight_key = {origin, destination};
+        if (flight_distances.find(flight_key) != flight_distances.end()) {
+            distance = flight_distances[flight_key];
+        } else {
+            distance = 0;
+            std::cout << "Flight route not found." << std::endl;
+        }
+
+        // Check if the plane starts at SCE
+        at_SCE = (origin == "SCE");
+    }
+
+    // Destructor
+    ~Plane() {
+        std::cout << "Plane object destroyed." << std::endl;
+    }
+
+    // Function "operate" that takes in a double variable "dt"
+    void operate(double dt) {
+        // Placeholder for future functionality
+        std::cout << "Operating the plane for a time step of " << dt << " seconds." << std::endl;
+    }
+
+    // Get function for "pos"
+    double getPos() const {
+        return pos;
+    }
+
+    // Get function for "origin"
+    std::string getOrigin() const {
+        return origin;
+    }
+
+    // Get function for "destination"
+    std::string getDestination() const {
+        return destination;
+    }
+
+    // Get function for "at_SCE"
+    bool isAtSCE() const {
+        return at_SCE;
+    }
+
+    // Get and set functions for "vel"
+    double getVel() const {
+        return vel;
+    }
+
+    void setVel(double newVel) {
+        vel = newVel;
+    }
+};
+
+int main() {
+    // Creating a Plane object from "SCE" to "PHL"
+    Plane myPlane("SCE", "PHL");
+
+    // Testing the getters
+    std::cout << "Origin: " << myPlane.getOrigin() << std::endl;
+    std::cout << "Destination: " << myPlane.getDestination() << std::endl;
+    std::cout << "Is at SCE: " << (myPlane.isAtSCE() ? "Yes" : "No") << std::endl;
+
+    // Test setting and getting velocity
+    myPlane.setVel(300.0);
+    std::cout << "Current velocity: " << myPlane.getVel() << " mph" << std::endl;
+
+    // Test the operate function
+    myPlane.operate(5.0);
+
+    return 0;
+}

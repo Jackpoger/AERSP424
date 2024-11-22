@@ -1,0 +1,145 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+
+// Function to calculate moment
+double calculate_moment(double weight, double moment_arm) {
+    return weight * moment_arm;
+}
+
+// Function to calculate gross weight
+double calculate_gross_weight(double empty_weight, const std::vector<double>& front_seat_weight, 
+                              const std::vector<double>& rear_seat_weight, double fuel_weight, 
+                              double baggage_weight) {
+    double total_front_seat_weight = 0.0;
+    for (double weight : front_seat_weight) total_front_seat_weight += weight;
+
+    double total_rear_seat_weight = 0.0;
+    for (double weight : rear_seat_weight) total_rear_seat_weight += weight;
+
+    return empty_weight + total_front_seat_weight + total_rear_seat_weight + fuel_weight + baggage_weight;
+}
+
+// Function to calculate total moment
+double calculate_total_moment(double empty_moment, double front_seat_moment, double rear_seat_moment, 
+                              double fuel_moment, double baggage_moment) {
+    return empty_moment + front_seat_moment + rear_seat_moment + fuel_moment + baggage_moment;
+}
+
+// Function to calculate CG location
+double calculate_cg(double total_moment, double gross_weight) {
+    return total_moment / gross_weight;
+}
+
+// Function to check if the gross weight and CG are within limits
+bool check_limits(double gross_weight, double cg_location, double max_gross_weight, 
+                  double forward_cg_limit, double aft_cg_limit) {
+    return (gross_weight <= max_gross_weight) && (cg_location >= forward_cg_limit && cg_location <= aft_cg_limit);
+}
+
+// Function to adjust fuel to bring the airplane within limits
+void adjust_fuel_for_limits(double fuel_weight_per_gallon, double fuel_tank_arm, double max_gross_weight, 
+                            double forward_cg_limit, double aft_cg_limit, double empty_weight, double empty_moment, 
+                            const std::vector<double>& front_seat_weight, double front_seat_arm, 
+                            const std::vector<double>& rear_seat_weight, double rear_seat_arm, 
+                            double baggage_weight, double baggage_arm) {
+    
+    double fuel_gallons = 0.0;
+    while (true) {
+        double fuel_weight = fuel_gallons * fuel_weight_per_gallon;
+        double front_seat_moment = calculate_moment(front_seat_weight[0] + front_seat_weight[1], front_seat_arm);
+        double rear_seat_moment = calculate_moment(rear_seat_weight[0] + rear_seat_weight[1], rear_seat_arm);
+        double fuel_moment = calculate_moment(fuel_weight, fuel_tank_arm);
+        double baggage_moment = calculate_moment(baggage_weight, baggage_arm);
+
+        double gross_weight = calculate_gross_weight(empty_weight, front_seat_weight, rear_seat_weight, fuel_weight, baggage_weight);
+        double total_moment = calculate_total_moment(empty_moment, front_seat_moment, rear_seat_moment, fuel_moment, baggage_moment);
+        double cg_location = calculate_cg(total_moment, gross_weight);
+
+        if (check_limits(gross_weight, cg_location, max_gross_weight, forward_cg_limit, aft_cg_limit)) {
+            std::cout << "Adjusted fuel amount: " << std::fixed << std::setprecision(2) << fuel_gallons << " gallons\n";
+            std::cout << "New gross weight: " << std::fixed << std::setprecision(2) << gross_weight << " lbs\n";
+            std::cout << "New CG location: " << std::fixed << std::setprecision(2) << cg_location << " inches\n";
+            break;
+        }
+        fuel_gallons += 0.01;  // Increment by 0.01 gallons
+    }
+}
+
+int main() {
+    // User inputs
+    double empty_weight, empty_moment, front_seat_arm, rear_seat_arm, fuel_gallons, fuel_weight_per_gallon, fuel_tank_arm, baggage_weight, baggage_arm;
+    int num_front_seat_occupants, num_rear_seat_occupants;
+    std::vector<double> front_seat_weight, rear_seat_weight;
+
+    // Get input from the user
+    std::cout << "Enter the aircraft empty weight (lbs): ";
+    std::cin >> empty_weight;
+    std::cout << "Enter the aircraft empty-weight moment (pounds-inches): ";
+    std::cin >> empty_moment;
+
+    std::cout << "Enter the number of front seat occupants: ";
+    std::cin >> num_front_seat_occupants;
+    front_seat_weight.resize(num_front_seat_occupants);
+    for (int i = 0; i < num_front_seat_occupants; ++i) {
+        std::cout << "Enter the weight of front seat occupant " << i+1 << " (lbs): ";
+        std::cin >> front_seat_weight[i];
+    }
+
+    std::cout << "Enter the front seat moment arm (inches): ";
+    std::cin >> front_seat_arm;
+
+    std::cout << "Enter the number of rear seat occupants: ";
+    std::cin >> num_rear_seat_occupants;
+    rear_seat_weight.resize(num_rear_seat_occupants);
+    for (int i = 0; i < num_rear_seat_occupants; ++i) {
+        std::cout << "Enter the weight of rear seat occupant " << i+1 << " (lbs): ";
+        std::cin >> rear_seat_weight[i];
+    }
+
+    std::cout << "Enter the rear seat moment arm (inches): ";
+    std::cin >> rear_seat_arm;
+
+    std::cout << "Enter the number of gallons of usable fuel: ";
+    std::cin >> fuel_gallons;
+    std::cout << "Enter the fuel weight per gallon (lbs): ";
+    std::cin >> fuel_weight_per_gallon;
+    std::cout << "Enter the fuel tank moment arm (inches): ";
+    std::cin >> fuel_tank_arm;
+
+    std::cout << "Enter the baggage weight (lbs): ";
+    std::cin >> baggage_weight;
+    std::cout << "Enter the baggage moment arm (inches): ";
+    std::cin >> baggage_arm;
+
+    // Airplane design limits
+    const double max_gross_weight = 2950.0; // lbs
+    const double forward_cg_limit = 82.1; // inches
+    const double aft_cg_limit = 84.7; // inches
+
+    // Calculations
+    double fuel_weight = fuel_gallons * fuel_weight_per_gallon;
+    double front_seat_moment = calculate_moment(front_seat_weight[0] + front_seat_weight[1], front_seat_arm);
+    double rear_seat_moment = calculate_moment(rear_seat_weight[0] + rear_seat_weight[1], rear_seat_arm);
+    double fuel_moment = calculate_moment(fuel_weight, fuel_tank_arm);
+    double baggage_moment = calculate_moment(baggage_weight, baggage_arm);
+
+    double gross_weight = calculate_gross_weight(empty_weight, front_seat_weight, rear_seat_weight, fuel_weight, baggage_weight);
+    double total_moment = calculate_total_moment(empty_moment, front_seat_moment, rear_seat_moment, fuel_moment, baggage_moment);
+    double cg_location = calculate_cg(total_moment, gross_weight);
+
+    // Output results
+    std::cout << "Gross weight: " << std::fixed << std::setprecision(2) << gross_weight << " lbs\n";
+    std::cout << "CG location: " << std::fixed << std::setprecision(2) << cg_location << " inches\n";
+
+    // Check if within limits
+    if (check_limits(gross_weight, cg_location, max_gross_weight, forward_cg_limit, aft_cg_limit)) {
+        std::cout << "The aircraft is within the design limits.\n";
+    } else {
+        std::cout << "The aircraft exceeds the design limits. Adjusting fuel...\n";
+        adjust_fuel_for_limits(fuel_weight_per_gallon, fuel_tank_arm, max_gross_weight, forward_cg_limit, aft_cg_limit,
+                               empty_weight, empty_moment, front_seat_weight, front_seat_arm, rear_seat_weight, rear_seat_arm, baggage_weight, baggage_arm);
+    }
+
+    return 0;
+}
