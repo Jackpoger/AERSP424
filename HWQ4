@@ -1,0 +1,32 @@
+#include <matplot/matplot.h>
+#include <vector>
+#include <cmath>
+
+int main() {
+    using namespace matplot;
+
+    // Parameters
+    double rho = 1.225; // Air density (kg/m^3)
+    double S = 20.0;    // Wing area (m^2)
+    double CL = 0.5;    // Lift coefficient
+
+    // Generate velocities from 0 to 100 m/s
+    std::vector<double> velocities;
+    std::vector<double> lift;
+    for (double v = 0.0; v <= 100.0; v += 5.0) {
+        velocities.push_back(v);
+        double L = 0.5 * rho * v * v * S * CL;
+        lift.push_back(L);
+    }
+
+    // Plotting the Lift vs Velocity graph
+    auto fig = figure(true);
+    plot(velocities, lift);
+    xlabel("Velocity (m/s)");
+    ylabel("Lift (N)");
+    title("Lift vs Velocity");
+
+    show();
+
+    return 0;
+}
