@@ -1,0 +1,64 @@
+#include <matplot/matplot.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <iostream>
+
+int main() {
+    using namespace matplot;
+
+    // Open CSV file
+    std::ifstream file("data.csv");
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file!" << std::endl;
+        return 1;
+    }
+
+    // Skip the header
+    std::string line;
+    std::getline(file, line);
+
+    // Read data
+    std::vector<double> time, x, y;
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+        double t, xv, yv;
+
+        // Read time
+        std::getline(ss, value, ',');
+        t = std::stod(value);
+        time.push_back(t);
+
+        // Read x
+        std::getline(ss, value, ',');
+        xv = std::stod(value);
+        x.push_back(xv);
+
+        // Read y
+        std::getline(ss, value, ',');
+        yv = std::stod(value);
+        y.push_back(yv);
+    }
+
+    file.close();
+
+    // Plotting time vs x and time vs y
+    auto figure = figure(true);
+    subplot(2, 1, 0);
+    plot(time, x);
+    xlabel("Time");
+    ylabel("X");
+    title("Time vs X");
+
+    subplot(2, 1, 1);
+    plot(time, y);
+    xlabel("Time");
+    ylabel("Y");
+    title("Time vs Y");
+
+    show();
+
+    return 0;
+}
